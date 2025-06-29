@@ -22,6 +22,9 @@
 
 
     @yield('css')
+    <!-- In layouts/app.blade.php -->
+@stack('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
