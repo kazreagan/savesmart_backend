@@ -1,13 +1,12 @@
-# For more information: https://laravel.com/docs/sail
 version: '3'
 services:
     laravel.test:
         build:
-            context: ./vendor/laravel/sail/runtimes/8.0
+            context: ./vendor/laravel/sail/runtimes/8.2
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
-        image: sail-8.0/app
+        image: sail-8.2/app
         ports:
             - '${APP_PORT:-80}:80'
         environment:
@@ -20,19 +19,11 @@ services:
         depends_on:
             - mysql
             - redis
-            # - selenium
-    # selenium:
-    #     image: 'selenium/standalone-chrome'
-    #     volumes:
-    #         - '/dev/shm:/dev/shm'
-    #     networks:
-    #         - sail
-    #     depends_on:
-    #         - laravel.test
+            - mailpit
     mysql:
         image: 'mysql:8.0'
         ports:
-            - '${FORWARD_DB_PORT:-3306}:3306'
+            - '${DB_PORT}:3306'
         environment:
             MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
             MYSQL_DATABASE: '${DB_DATABASE}'
@@ -46,22 +37,23 @@ services:
     redis:
         image: 'redis:alpine'
         ports:
-            - '${FORWARD_REDIS_PORT:-6379}:6379'
+            - '${REDIS_PORT}:6379'
         volumes:
             - 'sailredis:/data'
         networks:
             - sail
-    # memcached:
-    #     image: 'memcached:alpine'
-    #     ports:
-    #         - '11211:11211'
-    #     networks:
-    #         - sail
     mailhog:
         image: 'mailhog/mailhog:latest'
         ports:
-            - 1025:1025
-            - 8025:8025
+            - '1026:1025'
+            - '8026:8025'
+        networks:
+            - sail
+    mailpit:
+        image: 'axllent/mailpit:latest'
+        ports:
+            - '${FORWARD_MAILPIT_PORT:-1027}:1025'
+            - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8027}:8025'
         networks:
             - sail
 networks:
@@ -71,4 +63,8 @@ volumes:
     sailmysql:
         driver: local
     sailredis:
+        driver: local
+    sail-mysql:
+        driver: local
+    sail-redis:
         driver: local
