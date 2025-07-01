@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: savesmart_backend
+    env: docker
+    dockerfilePath: ./vendor/laravel/sail/runtimes/8.2/Dockerfile
+    plan: free
